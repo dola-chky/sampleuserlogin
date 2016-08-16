@@ -2,13 +2,13 @@
  
 angular.module('myApp').factory('UserService', ['$http', '$q', function($http, $q){
  
-    var REST_SERVICE_URI = 'http://localhost:8080/Spring4MVCAngularJSExample/user/';
+    var REST_SERVICE_URI = 'http://localhost:8080/userloginexample/user';
  
     var factory = {
         fetchAllUsers: fetchAllUsers,
+        fetchUserByName: fetchUserByName,
         createUser: createUser,
-        updateUser:updateUser,
-        deleteUser:deleteUser
+        loginUser: loginUser
     };
  
     return factory;
@@ -27,6 +27,21 @@ angular.module('myApp').factory('UserService', ['$http', '$q', function($http, $
         );
         return deferred.promise;
     }
+    
+    function fetchUserById (user){
+    	 var deferred = $q.defer();
+         $http.get('http://localhost:8080/userloginexample/user/{user.id}')
+             .then(
+             function (response) {
+                 deferred.resolve(response.data);
+             },
+             function(errResponse){
+                 console.error('Error while fetching Users');
+                 deferred.reject(errResponse);
+             }
+         );
+         return deferred.promise;
+    }
  
     function createUser(user) {
         var deferred = $q.defer();
@@ -42,31 +57,16 @@ angular.module('myApp').factory('UserService', ['$http', '$q', function($http, $
         );
         return deferred.promise;
     }
- 
- 
-    function updateUser(user, id) {
+    
+    function loginUser(user) {
         var deferred = $q.defer();
-        $http.put(REST_SERVICE_URI+id, user)
+        $http.post("http://localhost:8080/userloginexample/login", user)
             .then(
             function (response) {
                 deferred.resolve(response.data);
             },
             function(errResponse){
-                console.error('Error while updating User');
-                deferred.reject(errResponse);
-            }
-        );
-        return deferred.promise;
-    }
- 
-    function deleteUser(id) {
-        var deferred = $q.defer();
-        $http.delete(REST_SERVICE_URI+id).then(
-            function (response) {
-                deferred.resolve(response.data);
-            },
-            function(errResponse){
-                console.error('Error while deleting User');
+                console.error('invalid userName/password');
                 deferred.reject(errResponse);
             }
         );
